@@ -1,4 +1,5 @@
-import { _decorator, Component, Node, Prefab, instantiate, v3, Label, director, view } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, view, UITransform } from 'cc';
+import { GAME_CONFIG } from './GameDefs';
 import { Utils } from './Utils';
 const { ccclass, property } = _decorator;
 
@@ -8,19 +9,20 @@ export class ObtaclesManager extends Component {
     @property(Prefab)
     pipePrefab: Prefab = null;
 
-    distance = 180;
+    pipeList: Node[] = [];
+    groundList: Node[] = [];
 
-    obtaclesList: Node[] = [];
-
-    speedMove = -100;
     private _isGameOver = false;
-    start() {
-
-    }
-
+    private _curPosX = 0;
+    groundContainNode: Node;
 
     onGameOver() {
         this._isGameOver = true;
+    }
+
+    onLoad() {
+        this.groundContainNode = this.node.parent.getChildByName('base');
+        this.groundList = this.groundContainNode.children;
     }
 
     update(dt: number) {
@@ -28,74 +30,66 @@ export class ObtaclesManager extends Component {
             return;
         }
 
-        this.obtaclesList.forEach(pipe => {
+        this.pipeList.forEach(pipe => {
             let curPos = pipe.getPosition();
-            pipe.setPosition(curPos.x + this.speedMove * dt, curPos.y);
+            pipe.setPosition(curPos.x + GAME_CONFIG.PIPE_MOVE_SPEED * dt, curPos.y);
         });
 
         const screenView = view.getVisibleSize();
-        console.log('screenView ',screenView.width)
-
-        if (this.obtaclesList[0].position.x < -screenView.width) {
-            const removePipe = this.obtaclesList.splice(0, 1)[0];
+        // if first Pipe are out of screen, add it back in the end win random Pos Y
+        if (this.pipeList[0].position.x < -screenView.width) {
+            const removePipe = this.pipeList.splice(0, 1)[0];
             removePipe.removeFromParent();
-            // const curPos = removePipe.getPosition();
-            const lastPipe = this.obtaclesList[this.obtaclesList.length - 1];
+
+            const lastPipe = this.pipeList[this.pipeList.length - 1];
             const lastPipePosX = lastPipe.position.x;
-            const randomPosY = Utils.randomRange(this.MIN_POS_Y, this.MAX_POS_Y, true);
-            // const newPos = v3(lastPipePosX + this.distance, randomPosY, curPos.z)
+            const randomPosY = Utils.randomRange(GAME_CONFIG.MIN_PIPE_POS_Y, GAME_CONFIG.MAX_PIPE_POS_Y, true);
             removePipe.parent = this.node;
-            removePipe.setPosition(lastPipePosX + this.distance, randomPosY);
-            this.obtaclesList.push(removePipe);
+            removePipe.setPosition(lastPipePosX + GAME_CONFIG.DISTANT_BETWEEN_PIPES, randomPosY);
+            this.pipeList.push(removePipe);
         }
 
+        // ground move
+        this.groundList.forEach(ground => {
+            let curPos = ground.getPosition();
+            ground.setPosition(curPos.x + GAME_CONFIG.PIPE_MOVE_SPEED * dt, curPos.y);
+        });
+
+        if (this.groundList[0].position.x < -screenView.width / 2) {
+            const removeGround = this.groundList.splice(0, 1)[0];
+            let curPosY = removeGround.getPosition().y;
+            removeGround.removeFromParent();
+
+            const lastGround = this.groundList[this.groundList.length - 1];
+
+            removeGround.setPosition(lastGround.position.x + lastGround.getComponent(UITransform).contentSize.width, curPosY);
+            removeGround.parent = this.groundContainNode;
+
+            this.groundList.push(removeGround);
+        }
 
     }
 
     onStartGame() {
         this.node.removeAllChildren();
-        this.obtaclesList = [];
-        this.curPosX = this.startPosX;
-        this.randomObtacles(10);
+        this.pipeList = [];
+        this._curPosX = GAME_CONFIG.DISTANT_PIPES_FROM_START_POINT;
+        this.randomObtacles(GAME_CONFIG.PIPES_POOL_COUNT);
         this._isGameOver = false;
     }
-    startPosX = 300;
-    curPosX = 0;
 
-    readonly MAX_POS_Y = 90;
-    readonly MIN_POS_Y = -90;
-
-    randomObtacles(numObtacle = 1) {
-        const randomPosY = Utils.randomRange(this.MIN_POS_Y, this.MAX_POS_Y, true);
-        console.log('@@@@ randomObtacles ', numObtacle)
+    randomObtacles(numObtacle: number) {
+        const randomPosY = Utils.randomRange(GAME_CONFIG.MIN_PIPE_POS_Y, GAME_CONFIG.MAX_PIPE_POS_Y, true);
         const pipe = instantiate(this.pipePrefab);
-        // pipe.parent = this.node;
-        pipe.position = v3(this.curPosX, randomPosY, 0)
+        pipe.setPosition(this._curPosX, randomPosY)
         pipe.parent = this.node;
-        const label = pipe.getChildByName('text').getComponent(Label);
-        label.string = '' + numObtacle;
-        this.obtaclesList.push(pipe);
+        this.pipeList.push(pipe);
 
-        this.curPosX += this.distance;
-        console.log('@@@@@ randomObtacles this.curPosX', this.curPosX);
+        this._curPosX += GAME_CONFIG.DISTANT_BETWEEN_PIPES;
         numObtacle--;
         if (numObtacle > 0) {
             this.randomObtacles(numObtacle);
         }
-
     }
-
-    // lateUpdate() {
-    //     const screenView = view.getVisibleSize();
-    //     this.obtaclesList.forEach( pipe => {
-    //         const wPosX = pipe.worldPosition.x;
-    //         if (wPosX < -screenView.width  * 5) {
-    //             const randomPosY = Utils.randomRange(this.MIN_POS_Y, this.MAX_POS_Y, true);
-    //             pipe.position = v3(this.curPosX, randomPosY, 0)
-    //             this.curPosX += this.distance;
-    //         }
-    //     });
-    // }
-
 }
 

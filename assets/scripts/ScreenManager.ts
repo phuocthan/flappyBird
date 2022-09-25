@@ -12,12 +12,7 @@ export class ScreenManager extends Component {
 
     start() {
         ScreenManager.inst = this;
-        this.showScreen(SCREEN_TYPE.GAMEPLAY);
-        // this.showScreen(SCREEN_TYPE.START);
-    }
-
-    update(deltaTime: number) {
-
+        this.showScreen(SCREEN_TYPE.START);
     }
 
     showScreen(screenID: SCREEN_TYPE) {
