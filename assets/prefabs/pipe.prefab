@@ -335,13 +335,13 @@
     "_restitution": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.4,
+      "y": -1
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 52,
-      "height": 320
+      "width": 46.2,
+      "height": 317.3
     },
     "_id": ""
   },
@@ -500,13 +500,13 @@
     "_restitution": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.6,
+      "y": -2.6
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 52,
-      "height": 320
+      "width": 43.9,
+      "height": 318.8
     },
     "_id": ""
   },

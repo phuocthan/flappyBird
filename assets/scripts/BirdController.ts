@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, v3, v2, BoxCollider2D, Contact2DType, IPhysics2DContact, Animation, misc, PhysicsSystem2D, Collider2D, Collider2D_base, Director, director } from 'cc';
+import { _decorator, Component, Node, v3, v2, BoxCollider2D, Contact2DType, IPhysics2DContact, Animation, misc, PhysicsSystem2D, Collider2D, Collider2D_base, Director, director, view } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('BirdController')
@@ -8,17 +8,6 @@ export class BirdController extends Component {
 
     onLoad() {
         this._animation = this.node.getComponent(Animation);
-    }
-    start() {
-
-        this._subscribeColliderContactEvents(this.node);
-    }
-
-    protected _subscribeColliderContactEvents(node: Node): void {
-        const collider = node.getComponent(Collider2D);
-        console.log('@@@@ collider ', collider)
-        collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact.bind(this), true);
-        collider.on(Contact2DType.END_CONTACT, this.onEndContact.bind(this), true);
     }
 
     listenerOnBirdDead(callback: () => {}) {
@@ -54,7 +43,7 @@ export class BirdController extends Component {
         this.speed = this.jumpSpeed;
     }
 
-    dead() {
+    onGameOver() {
         this._isDead = true;
         this._animation.stop();
         this.callbackOnDead && this.callbackOnDead();
@@ -63,14 +52,10 @@ export class BirdController extends Component {
     onStartGame() {
         this._isDead = false;
         this._animation.play();
+        this.node.setPosition(0, 50);
+        this.speed = 0;
     }
 
-    public onBeginContact(selfCollider: Collider2D, otherCollider: Collider2D): void {
-        // this.dead();
-    }
-
-    public onEndContact(selfCollider: Collider2D, otherCollider: Collider2D): void {
-    }
 
 
 
