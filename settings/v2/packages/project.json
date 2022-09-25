@@ -1,0 +1,30 @@
+{
+  "general": {
+    "designResolution": {
+      "width": 640,
+      "height": 960
+    }
+  },
+  "physics": {
+    "collisionGroups": [
+      {
+        "index": 1,
+        "name": "BIRD"
+      },
+      {
+        "index": 2,
+        "name": "GROUND"
+      },
+      {
+        "index": 3,
+        "name": "PIPE"
+      }
+    ],
+    "collisionMatrix": {
+      "0": 1,
+      "1": 12,
+      "2": 2,
+      "3": 2
+    }
+  }
+}
